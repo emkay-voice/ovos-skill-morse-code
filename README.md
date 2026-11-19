@@ -7,7 +7,10 @@ generated-audio philosophy as
 [ovos-skill-tuning-fork](https://github.com/andlo/ovos-skill-tuning-fork):
 nothing recorded, nothing to source or license.
 
-[![Tests](https://github.com/andlo/ovos-skill-morse-code/actions/workflows/test.yml/badge.svg)](https://github.com/andlo/ovos-skill-morse-code/actions/workflows/test.yml)
+It is part of [Emkay](https://github.com/emkay-voice/emkay), OpenVoiceOS in
+the browser, and works on any [OpenVoiceOS](https://openvoiceos.org).
+
+[![Build](https://github.com/emkay-voice/ovos-skill-morse-code/actions/workflows/publish.yml/badge.svg)](https://github.com/emkay-voice/ovos-skill-morse-code/actions/workflows/publish.yml)
 [![PyPI version](https://img.shields.io/pypi/v/ovos-skill-morse-code.svg)](https://pypi.org/project/ovos-skill-morse-code/)
 
 ## Usage

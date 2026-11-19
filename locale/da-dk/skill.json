@@ -1,10 +1,10 @@
 {
-  "skill_id": "ovos-skill-morse-code.andlo",
-  "source": "https://github.com/andlo/ovos-skill-morse-code",
+  "skill_id": "ovos-skill-morse-code.emkay-voice",
+  "source": "https://github.com/emkay-voice/ovos-skill-morse-code",
   "package_name": "ovos-skill-morse-code",
   "pip_spec": "ovos-skill-morse-code",
-  "license": "GPL-3.0-or-later",
-  "author": "andlo",
+  "license": "Apache-2.0",
+  "author": "emkay-voice",
   "name": "Morsekode",
   "description": "Koder tekst til morsekode, afspillet som genererede hørbare bip. Fuldstændig offline, ingen optagelser.",
   "examples": [
@@ -16,5 +16,5 @@
     "underholdning",
     "ham radio"
   ],
-  "icon": "https://raw.githubusercontent.com/andlo/ovos-skill-morse-code/main/icon.png"
+  "icon": "https://raw.githubusercontent.com/emkay-voice/ovos-skill-morse-code/main/icon.png"
 }
