@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ovos-skill-morse-code"
-version = "0.2.0a1"
+version = "0.2.0"
 description = "Encodes text to Morse code, played as generated audible beeps. Fully offline, nothing recorded."
 readme = "README.md"
 license = {text = "Apache-2.0"}
