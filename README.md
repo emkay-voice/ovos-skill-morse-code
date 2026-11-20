@@ -37,6 +37,10 @@ short dot duration rather than trying to match a specific "words per
 minute" telegraphy convention - the goal is a clearly recognizable
 representation, not amateur-radio-accurate speed.
 
+## On a screen
+
+On a device with a screen (Emkay, a Mark II, any OVOS GUI) the code is shown as well as played. Asked as an intent, the text is at the top and each character gets a round tile with its dots and dashes, the letter underneath, using the stock `SYSTEM_grid` template. Played through OCP ("play hello world in morse"), the whole text and its code become the now-playing picture. Everything is drawn as SVG on the fly, so nothing is downloaded.
+
 ## Install
 ```bash
 pip install ovos-skill-morse-code
