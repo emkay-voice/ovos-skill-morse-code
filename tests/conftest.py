@@ -27,4 +27,5 @@ def skill(monkeypatch):
     s._lang_resources = {}
     s._voc_cache = {}
     s.skill_icon = ""
+    s.gui = MagicMock()
     return s

@@ -26,6 +26,7 @@ minute" convention real telegraphy uses - the goal here is a clearly
 recognizable representation, not amateur-radio-accurate speed.
 """
 
+import base64
 import math
 import re
 import struct
@@ -135,6 +136,70 @@ OCP_MEDIA = [MediaType.AUDIO, MediaType.MUSIC, MediaType.GENERIC]
 OCP_CONFIDENCE = 100
 SKILL_ROOT = Path(__file__).resolve().parent
 
+# ON A SCREEN (issue #5): the code is drawn as SVG - dots as circles,
+# dashes as bars - and sent as data: URIs, so nothing is shipped or
+# fetched and any GUI with the stock OVOS templates can show it. The
+# intent shows SYSTEM_grid, a round tile per character with its dots
+# and dashes inside and the letter underneath. Through OCP the whole
+# text becomes the now-playing picture instead (morse_sheet()).
+SCREEN_SECONDS = 60
+_DOT_R = 10
+_DASH_W = 54
+_SYMBOL_GAP = 14
+
+
+def _svg_uri(svg):
+    return "data:image/svg+xml;base64," + base64.b64encode(svg.encode("utf-8")).decode("ascii")
+
+
+def _symbols_width(pattern):
+    return sum(2 * _DOT_R if s == "." else _DASH_W for s in pattern) + _SYMBOL_GAP * (len(pattern) - 1)
+
+
+def _symbols(pattern, x, cy):
+    """SVG shapes for one character's dots and dashes, starting at x."""
+    shapes = []
+    for symbol in pattern:
+        if symbol == ".":
+            shapes.append(f'<circle cx="{x + _DOT_R}" cy="{cy}" r="{_DOT_R}"/>')
+            x += 2 * _DOT_R
+        else:
+            shapes.append(f'<rect x="{x}" y="{cy - _DOT_R}" width="{_DASH_W}" '
+                          f'height="{2 * _DOT_R}" rx="{_DOT_R}"/>')
+            x += _DASH_W
+        x += _SYMBOL_GAP
+    return "".join(shapes)
+
+
+def morse_tile(pattern):
+    """One character's dots and dashes centred in a square tile."""
+    side = max(200, _symbols_width(pattern) + 60)
+    x = (side - _symbols_width(pattern)) / 2
+    return _svg_uri(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {side} {side}">'
+                    f'<g fill="#ffffff">{_symbols(pattern, x, side / 2)}</g></svg>')
+
+
+def morse_sheet(text):
+    """The whole text as one picture: a row per character, the letter
+    on the left and its code on the right, kept inside the circle a
+    round now-playing cover is cut to. Word gaps are left out."""
+    rows = [(c.upper(), MORSE_CODE[c]) for c in text.lower() if c in MORSE_CODE]
+    row_h = 2 * _DOT_R + 18
+    width = 50 + max(_symbols_width(p) for _, p in rows)
+    height = row_h * len(rows)
+    # the content box fits inside the circle's inscribed square
+    side = max(300, int(max(width, height) * 1.5))
+    left = (side - width) / 2
+    top = (side - height) / 2
+    parts = []
+    for i, (char, pattern) in enumerate(rows):
+        cy = top + i * row_h + row_h / 2
+        parts.append(f'<text x="{left}" y="{cy + 11}" font-family="sans-serif" '
+                     f'font-weight="bold" font-size="30">{char}</text>')
+        parts.append(_symbols(pattern, left + 50, cy))
+    return _svg_uri(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {side} {side}">'
+                    f'<g fill="#ffffff">{"".join(parts)}</g></svg>')
+
 
 class MorseCode(OVOSCommonPlaybackSkill):
 
@@ -168,6 +233,7 @@ class MorseCode(OVOSCommonPlaybackSkill):
             media_type=media_type if media_type in OCP_MEDIA else MediaType.AUDIO,
             playback=PlaybackType.AUDIO,
             match_confidence=OCP_CONFIDENCE,
+            image=morse_sheet(text),
             skill_icon=self.skill_icon,
             skill_id=self.skill_id,
         )]
@@ -182,4 +248,13 @@ class MorseCode(OVOSCommonPlaybackSkill):
         if not patterns or all(p == "WORD_GAP" for p in patterns):
             self.speak_dialog("nothing_encodable", {"text": text})
             return
+        self._show_code(text)
         self.play_audio(_tone_path_for_text(text), instant=True)
+
+    def _show_code(self, text):
+        """The text as the title, a tile per character: its dots and
+        dashes in the circle, the character underneath."""
+        self.gui["title"] = text
+        self.gui["items"] = [{"image": morse_tile(MORSE_CODE[c]), "title": c.upper()}
+                             for c in text.lower() if c in MORSE_CODE]
+        self.gui.show_page("SYSTEM_grid", override_idle=SCREEN_SECONDS)
